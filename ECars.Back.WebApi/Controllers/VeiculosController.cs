@@ -20,9 +20,35 @@ namespace ECars.Back.Controllers
         {
             var query = _context.Veiculos.AsQueryable();
 
-            // Filtros basicos
-            if (!string.IsNullOrEmpty(dto.Marca)) query = query.Where(v => v.Marca == dto.Marca);
-            if (!string.IsNullOrEmpty(dto.Modelo)) query = query.Where(v => v.Modelo == dto.Modelo);
+            // Helper for equality filters
+            void ApplyFilter<T>(T? value, Expression<Func<Veiculo, T>> property) where T : struct
+            {
+                if (value.HasValue)
+                    query = query.Where(Expression.Lambda<Func<Veiculo, bool>>(
+                        Expression.Equal(property.Body, Expression.Constant(value.Value)),
+                        property.Parameters));
+            }
+            void ApplyFilter(string value, Expression<Func<Veiculo, string>> property)
+            {
+                if (!string.IsNullOrEmpty(value))
+                    query = query.Where(Expression.Lambda<Func<Veiculo, bool>>(
+                        Expression.Equal(property.Body, Expression.Constant(value)),
+                        property.Parameters));
+            }
+
+            // Apply filters
+            ApplyFilter(dto.Marca, v => v.Marca);
+            ApplyFilter(dto.Modelo, v => v.Modelo);
+            ApplyFilter(dto.TipoVendedor, v => v.TipoVendedor);
+            ApplyFilter(dto.Combustivel, v => v.Combustivel);
+            ApplyFilter(dto.CaixaVelocidades, v => v.CaixaVelocidades);
+            ApplyFilter(dto.Tracao, v => v.Tracao);
+            ApplyFilter(dto.Estado, v => v.Estado);
+            ApplyFilter(dto.ClasseEmissao, v => v.ClasseEmissao);
+            ApplyFilter(dto.Distrito, v => v.Distrito);
+            ApplyFilter(dto.Concelho, v => v.Concelho);
+
+            // Range filters
             if (dto.AnoMin.HasValue) query = query.Where(v => v.Ano >= dto.AnoMin.Value);
             if (dto.AnoMax.HasValue) query = query.Where(v => v.Ano <= dto.AnoMax.Value);
             if (dto.PrecoMin.HasValue) query = query.Where(v => v.Preco >= dto.PrecoMin.Value);
