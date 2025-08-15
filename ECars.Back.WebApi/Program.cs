@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ECars.Back.Data;
+using ECars.Back.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,5 +38,5 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseCors();
 app.MapControllers();
-//app.MapHub<ChatHub>("/chat"); // Para chat real-time
+app.MapHub<ChatHub>("/chat");
 app.Run();
